@@ -95,8 +95,7 @@ class Tapper:
 
             try:
                 async with self.lock:
-                    response_text, x_cv, x_touch = await asyncio.to_thread(login_in_browser, auth_url, proxy)
-                    # Здесь login_in_browser остался синхронным, использовали asyncio.to_thread
+                    response_text, x_cv, x_touch = await login_in_browser(auth_url, proxy)
 
                 response_json = json.loads(response_text)
                 print(f"API Response JSON: {response_json}")  # Добавь это для отладки
