@@ -1,3 +1,4 @@
+import subprocess
 import asyncio
 from contextlib import suppress
 from aiohttp import web
@@ -5,8 +6,10 @@ import requests
 import os
 
 from bot.utils.launcher import process
-
 from bot.config.config import settings  # пример импорта settings
+
+# Установка Chromium (вместо Google Chrome)
+subprocess.run(["bash", "chrome_install.sh"])
 
 print(f"API_ID: {settings.API_ID}, API_HASH: {settings.API_HASH}")
 
@@ -29,7 +32,6 @@ async def main():
         process(),       # Основная логика бота
         start_server()   # Запуск веб-сервера для Render
     )
-
 
 if __name__ == '__main__':
     with suppress(KeyboardInterrupt):
