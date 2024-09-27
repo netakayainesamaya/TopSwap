@@ -36,6 +36,7 @@ pydivert==2.1.0
 pyjsparser==2.7.1
 pyOpenSSL==24.2.1
 pyparsing==3.1.4
+pyppeteer==2.0.0
 Pyrogram==2.0.106
 PySocks==1.7.1
 python-dotenv==1.0.1

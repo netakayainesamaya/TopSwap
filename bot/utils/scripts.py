@@ -21,6 +21,8 @@ from bot.config import settings
 from bot.utils import logger
 from bot.utils.emojis import num, StaticEmoji
 
+from pyppeteer import launch
+
 
 def get_session_names() -> list[str]:
     session_names = [os.path.splitext(os.path.basename(file))[0] for file in glob.glob("sessions/*.session")]
@@ -171,54 +173,47 @@ def extract_chq(chq: str) -> int:
     return chr_key, cache_id
 
 
-def login_in_browser(auth_url: str, proxy: str) -> tuple[str, str, str]:
-    seleniumwire_options = None
-
-    # Прокси передаётся через seleniumwire_options
+async def login_in_browser(auth_url: str, proxy: str) -> tuple[str, str, str]:
+    # Настройка прокси, если требуется
+    args = []
     if proxy:
-        seleniumwire_options = {
-            'proxy': {
-                'http': proxy,
-                'https': proxy,
-            }
-        }
+        args = [f'--proxy-server={proxy}']
 
-    # Используем create_webdriver и передаем seleniumwire_options
-    with create_webdriver(seleniumwire_options=seleniumwire_options) as driver:
-        driver.get(auth_url)
+    # Запуск браузера
+    browser = await launch(headless=True, args=args)
+    page = await browser.newPage()
 
-        time.sleep(random.randint(7, 15))
+    # Переход по URL
+    await page.goto(auth_url)
+    await asyncio.sleep(random.randint(7, 15))
 
-        try:
-            skip_button = driver.find_element(By.XPATH, '//*[@id="app"]/div[2]/button')
-            if skip_button:
-                skip_button.click()
-                time.sleep(random.randint(2, 5))
-        except:
-            ...
+    try:
+        # Клик по кнопке "skip", если она есть
+        skip_button = await page.xpath('//*[@id="app"]/div[2]/button')
+        if skip_button:
+            await skip_button[0].click()
+            await asyncio.sleep(random.randint(2, 5))
+    except:
+        pass
 
-        try:
-            coin = driver.find_element(By.XPATH, '//*[@id="ex1-layer"]')
-            if coin:
-                coin.click()
-        except:
-            ...
+    try:
+        # Клик по монете, если элемент присутствует
+        coin = await page.xpath('//*[@id="ex1-layer"]')
+        if coin:
+            await coin[0].click()
+    except:
+        pass
 
-        time.sleep(5)
+    await asyncio.sleep(5)
 
-        response_text = '{}'
-        x_cv = '651'
-        x_touch = '1'
+    response_text = '{}'
+    x_cv = '651'
+    x_touch = '1'
 
-        # Сбор данных из запросов
-        for request in driver.requests:
-            request_body = request.body.decode('utf-8')
-            if request.url == "https://api.tapswap.club/api/account/challenge" and 'chr' in request_body:
-                response_text = request.response.body.decode('utf-8')
+    # Итерируем по запросам и находим необходимые данные
+    requests = await page.waitForResponse("https://api.tapswap.club/api/account/challenge")
+    if requests:
+        response_text = await requests.text()
 
-            if request.url == "https://api.tapswap.club/api/player/submit_taps":
-                headers = dict(request.headers.items())
-                x_cv = headers.get('X-Cv') or headers.get('x-cv')
-                x_touch = headers.get('X-Touch', '') or headers.get('x-touch', '')
-
+    await browser.close()
     return response_text, x_cv, x_touch
