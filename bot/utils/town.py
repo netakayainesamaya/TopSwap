@@ -70,8 +70,14 @@ async def update_build(http_client: aiohttp.ClientSession, b_id: str) -> Union[s
 async def build_town(self, http_client: aiohttp.ClientSession, profile_data) -> bool:
     global b_name
 
+    # Логирование профиля
     print(f"profile_data: {profile_data}")  # Логирование для проверки данных
     logger.info(f"{self.session_name} | build_town function started")
+
+    # Проверка наличия ключа "player"
+    if "player" not in profile_data:
+        logger.error(f"{self.session_name} | Key 'player' not found in profile_data")
+        return False
 
     # Текущие ресурсы
     b_crystals = profile_data["player"].get("crystals", 0)
