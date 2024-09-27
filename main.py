@@ -6,6 +6,9 @@ import os
 
 from bot.utils.launcher import process
 
+from bot.config.config import settings  # пример импорта settings
+
+print(f"API_ID: {settings.API_ID}, API_HASH: {settings.API_HASH}")
 
 # Имитация простого веб-сервера для Render
 async def handle(request):
