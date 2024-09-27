@@ -70,6 +70,7 @@ async def update_build(http_client: aiohttp.ClientSession, b_id: str) -> Union[s
 async def build_town(self, http_client: aiohttp.ClientSession, profile_data) -> bool:
     global b_name
 
+    print(f"profile_data: {profile_data}")  # Логирование для проверки данных
     logger.info(f"{self.session_name} | build_town function started")
 
     # Текущие ресурсы
