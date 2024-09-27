@@ -11,6 +11,7 @@ from bot.config.config import settings  # пример импорта settings
 # Установка Chromium (вместо Google Chrome)
 subprocess.run(["bash", "chrome_install.sh"])
 
+# Проверяем переданные переменные API
 print(f"API_ID: {settings.API_ID}, API_HASH: {settings.API_HASH}")
 
 # Имитация простого веб-сервера для Render
@@ -33,6 +34,6 @@ async def main():
         start_server()   # Запуск веб-сервера для Render
     )
 
-if __name__ == '__main__':
+if __name__ == '__main__': 
     with suppress(KeyboardInterrupt):
         asyncio.run(main())
